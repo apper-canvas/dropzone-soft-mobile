@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "name": "presentation-slides.pdf",
+    "size": 2048576,
+    "type": "application/pdf",
+    "uploadProgress": 100,
+    "status": "completed",
+    "uploadedAt": "2024-01-15T10:30:00Z",
+    "url": "https://example.com/files/presentation-slides.pdf"
+  },
+  {
+    "id": "2",
+    "name": "project-screenshot.png",
+    "size": 1536000,
+    "type": "image/png",
+    "uploadProgress": 100,
+    "status": "completed",
+    "uploadedAt": "2024-01-15T09:15:00Z",
+    "url": "https://example.com/files/project-screenshot.png"
+  },
+  {
+    "id": "3",
+    "name": "financial-report.xlsx",
+    "size": 3072000,
+    "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "uploadProgress": 100,
+    "status": "completed",
+    "uploadedAt": "2024-01-15T08:45:00Z",
+    "url": "https://example.com/files/financial-report.xlsx"
+  }
+]
