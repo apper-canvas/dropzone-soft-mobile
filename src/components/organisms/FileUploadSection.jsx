@@ -1,35 +1,40 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import ApperIcon from './ApperIcon';
-import FileUploadProgress from './FileUploadProgress';
-import FileList from './FileList';
-import { fileItemService, uploadSessionService } from '../services';
+import PropTypes from 'prop-types';
 
-const MainFeature = ({ onSessionUpdate }) => {
+import ApperIcon from '@/components/ApperIcon';
+import Input from '@/components/atoms/Input';
+import FileUploadCard from '@/components/molecules/FileUploadCard';
+import UploadedFileCard from '@/components/molecules/UploadedFileCard';
+import DropZoneDisplay from '@/components/molecules/DropZoneDisplay';
+
+import { fileItemService, uploadSessionService } from '@/services';
+
+const ACCEPTED_FILE_TYPES = {
+  'image/jpeg': '.jpg,.jpeg',
+  'image/png': '.png',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
+  'application/pdf': '.pdf',
+  'text/plain': '.txt',
+  'application/msword': '.doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+  'application/vnd.ms-excel': '.xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+  'application/zip': '.zip',
+  'application/x-rar-compressed': '.rar'
+};
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
+const FileUploadSection = ({ onSessionUpdate }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [dragCounter, setDragCounter] = useState(0);
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
-
-  const ACCEPTED_FILE_TYPES = {
-    'image/jpeg': '.jpg,.jpeg',
-    'image/png': '.png',
-    'image/gif': '.gif',
-    'image/webp': '.webp',
-    'application/pdf': '.pdf',
-    'text/plain': '.txt',
-    'application/msword': '.doc',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-    'application/vnd.ms-excel': '.xls',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
-    'application/zip': '.zip',
-    'application/x-rar-compressed': '.rar'
-  };
-
-  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
   const validateFile = (file) => {
     if (!Object.keys(ACCEPTED_FILE_TYPES).includes(file.type)) {
@@ -41,15 +46,6 @@ const MainFeature = ({ onSessionUpdate }) => {
     }
     
     return null;
-  };
-
-  const getFileTypeColor = (type) => {
-    if (type.startsWith('image/')) return 'from-blue-500 to-blue-600';
-    if (type.includes('pdf')) return 'from-red-500 to-red-600';
-    if (type.includes('word') || type.includes('document')) return 'from-blue-500 to-blue-700';
-    if (type.includes('excel') || type.includes('spreadsheet')) return 'from-green-500 to-green-600';
-    if (type.includes('zip') || type.includes('rar')) return 'from-purple-500 to-purple-600';
-    return 'from-gray-500 to-gray-600';
   };
 
   const createRippleEffect = (event) => {
@@ -254,67 +250,15 @@ const MainFeature = ({ onSessionUpdate }) => {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <input
+        <Input
           ref={fileInputRef}
           type="file"
           multiple
           accept={Object.values(ACCEPTED_FILE_TYPES).join(',')}
           onChange={handleFileSelect}
-          className="hidden"
         />
 
-        <motion.div
-          animate={isDragging ? { scale: 1.1, y: -10 } : { scale: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          className="space-y-6"
-        >
-          <div className="relative">
-            <motion.div
-              animate={isDragging ? { rotate: 360 } : { rotate: 0 }}
-              transition={{ duration: 0.5 }}
-              className={`
-                w-20 h-20 mx-auto rounded-full flex items-center justify-center
-                ${isDragging 
-                  ? 'bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/25' 
-                  : 'bg-gradient-to-br from-surface-700 to-surface-600'
-                }
-              `}
-            >
-              <ApperIcon 
-                name={isDragging ? "Download" : "Upload"} 
-                className="w-8 h-8 text-white" 
-              />
-            </motion.div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-2xl font-heading font-semibold text-white">
-              {isDragging ? "Drop files here" : "Drag & drop files"}
-            </h3>
-            <p className="text-surface-300">
-              or click to browse your computer
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex flex-wrap justify-center gap-2">
-              {Object.entries(ACCEPTED_FILE_TYPES).slice(0, 6).map(([type, ext]) => (
-                <span
-                  key={type}
-                  className={`
-                    px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r text-white
-                    ${getFileTypeColor(type)}
-                  `}
-                >
-                  {ext.split(',')[0].replace('.', '').toUpperCase()}
-                </span>
-              ))}
-            </div>
-            <p className="text-surface-400 text-sm">
-              Maximum file size: 50MB
-            </p>
-          </div>
-        </motion.div>
+        <DropZoneDisplay isDragging={isDragging} acceptedFileTypes={ACCEPTED_FILE_TYPES} />
       </motion.div>
 
       {/* Active Uploads */}
@@ -332,7 +276,7 @@ const MainFeature = ({ onSessionUpdate }) => {
             </h3>
             <div className="space-y-3">
               {uploadingFiles.map(file => (
-                <FileUploadProgress
+                <FileUploadCard
                   key={file.id}
                   file={file}
                   onCancel={() => handleCancelUpload(file.id)}
@@ -356,10 +300,16 @@ const MainFeature = ({ onSessionUpdate }) => {
               <ApperIcon name="CheckCircle" className="w-5 h-5 text-success" />
               Completed Files
             </h3>
-            <FileList
-              files={uploadedFiles}
-              onRemove={handleRemoveFile}
-            />
+            <div className="space-y-3 max-w-full overflow-hidden">
+              {uploadedFiles.map((file, index) => (
+                <UploadedFileCard
+                  key={file.id}
+                  file={file}
+                  onRemove={handleRemoveFile}
+                  index={index}
+                />
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -381,4 +331,8 @@ const MainFeature = ({ onSessionUpdate }) => {
   );
 };
 
-export default MainFeature;
+FileUploadSection.propTypes = {
+  onSessionUpdate: PropTypes.func.isRequired,
+};
+
+export default FileUploadSection;

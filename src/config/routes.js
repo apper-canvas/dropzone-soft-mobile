@@ -1,5 +1,5 @@
-import Home from '../pages/Home';
-import NotFound from '../pages/NotFound';
+import HomePage from '@/components/pages/HomePage';
+import NotFoundPage from '@/components/pages/NotFoundPage';
 
 export const routes = {
   home: {
@@ -7,8 +7,14 @@ export const routes = {
     label: 'DropZone Pro',
     path: '/home',
     icon: 'Upload',
-    component: Home
+    component: HomePage
+  },
+  notFound: {
+    id: 'notFound',
+    label: 'Page Not Found',
+    path: '*',
+    component: NotFoundPage
   }
 };
 
-export const routeArray = Object.values(routes);
+export const routeArray = Object.values(routes).filter(route => route.path !== '*');

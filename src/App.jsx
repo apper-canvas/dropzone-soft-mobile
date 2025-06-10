@@ -16,7 +16,10 @@ function App() {
                 element={<route.component />}
               />
             ))}
-            <Route path="/" element={<routes.home.component />} />
+            {/* Default route for "/" */}
+            <Route index element={<routes.home.component />} />
+{/* Catch-all for 404 */}
+            <Route path="*" element={<routes.notFound.component />} />
           </Route>
         </Routes>
         
